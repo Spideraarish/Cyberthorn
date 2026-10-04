@@ -8,7 +8,7 @@ class LiveAlertGenerator:
         # Ensure DB exists
         if not os.path.exists(DB_PATH):
             conn = sqlite3.connect(DB_PATH)
-            conn.execute("CREATE TABLE incoming_alerts (id INTEGER PRIMARY KEY, ip TEXT, zone TEXT, wazuh_event TEXT, gnn_score REAL)")
+            conn.execute("CREATE TABLE incoming_alerts (id INTEGER PRIMARY KEY, ip TEXT, zone TEXT, wazuh_event TEXT, gnn_score REAL, cnn_score REAL, fused_score REAL)")
             conn.commit()
             conn.close()
 

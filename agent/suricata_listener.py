@@ -6,12 +6,12 @@ import os
 import sys
 import requests
 
-# Add GNN to path for real scoring
-sys.path.append(os.path.join(os.path.dirname(__file__), '../gnn'))
+# Add ML to path for real scoring
+sys.path.append(os.path.join(os.path.dirname(__file__), '../ml'))
 try:
-    from infer import infer
+    from predict import predict
 except ImportError:
-    infer = None
+    predict = None
 
 DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'alerts.db'))
 TOPOLOGY_URL = "http://localhost:8001/api/topology"
@@ -43,20 +43,38 @@ def insert_alert(ip, zone, event, gnn_score):
     finally:
         conn.close()
 
-def compute_gnn_score(event_signature):
-    if not infer:
-        return 0.95 if "Scan" in event_signature else 0.85
+def compute_gnn_score(event):
+    if not predict:
+        signature = event.get("alert", {}).get("signature", "")
+        return 0.95 if "Scan" in signature else 0.85
     
-    # Mock node/edge features to feed the GNN based on the Suricata signature
-    node_features = [[1.0, 50.0], [0.0, 0.0]]
-    edges = [[1, 0]]
-    edge_features = [[64, 80]] # Dummy packet features
+    src_ip = event.get("src_ip", "0.0.0.0")
+    dest_ip = event.get("dest_ip", "0.0.0.0")
+    src_port = event.get("src_port", 0)
+    dest_port = event.get("dest_port", 0)
+    proto = event.get("proto", "TCP")
+    
+    flow = {
+        "src_ip": src_ip,
+        "dst_ip": dest_ip,
+        "src_port": src_port,
+        "dst_port": dest_port,
+        "proto": proto,
+        "duration": 1.0,
+        "fwd_pkts": 1,
+        "bwd_pkts": 0,
+        "fwd_bytes": 64,
+        "bwd_bytes": 0,
+        "flags": "S"
+    }
     
     try:
-        scores = infer(node_features, edges, edge_features)
-        if scores is not None and len(scores) > 1:
-            return float(scores[1][0])
-    except:
+        bundle = os.path.abspath(os.path.join(os.path.dirname(__file__), '../ml/models/bundle.pt'))
+        res = predict([flow], bundle_path=bundle)
+        prob_normal = res.get("fused_probs", {}).get("normal", 0.0)
+        return float(1.0 - prob_normal)
+    except Exception as e:
+        print(f"ML Predict Error: {e}", flush=True)
         pass
     return 0.95
 
@@ -102,7 +120,7 @@ def main():
                     ip_to_zone = get_dynamic_zones()
                     
                 zone = ip_to_zone.get(src_ip, "untrusted")
-                score = compute_gnn_score(signature)
+                score = compute_gnn_score(event)
                 
                 # Format to match our pipeline requirements
                 event_name = "port_scan_detected" if "Scan" in signature else "lateral_movement_detected"

@@ -39,10 +39,15 @@ def run_loop():
                 
                 # ORIENT
                 current_trust = trust.get_score(ip)
+                if current_trust == 0.0:
+                    continue # IP is already blocked, ignore further alerts for it to prevent UI spam
+                    
                 context = {
                     "ip": ip,
                     "zone": alert["zone"],
-                    "gnn_score": alert["gnn_score"],
+                    "gnn_score": alert.get("gnn_score", 0),
+                    "cnn_score": alert.get("cnn_score", 0),
+                    "fused_score": alert.get("fused_score", 0),
                     "wazuh_event": alert["wazuh_event"],
                     "current_trust_score": current_trust
                 }
