@@ -4,19 +4,11 @@ import time
 import sqlite3
 import os
 import sys
+import threading
 from collections import defaultdict
-
-# Add GNN to path for real scoring
-sys.path.append(os.path.join(os.path.dirname(__file__), '../gnn'))
-try:
-    from infer import infer
-except ImportError:
-    infer = None
-
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'alerts.db'))
-
 import requests
 
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 'alerts.db'))
 TOPOLOGY_URL = "http://localhost:8001/api/topology"
 DYNAMIC_ZONES = {}
 
@@ -28,13 +20,21 @@ def update_zones():
             zone = node.get("zones", ["unknown"])[0]
             for ip in node.get("ips", []):
                 DYNAMIC_ZONES[ip] = zone
-    except Exception as e:
+    except Exception:
         pass
 
 def get_zone(ip):
     if not DYNAMIC_ZONES:
         update_zones()
-    return DYNAMIC_ZONES.get(ip, "unknown")
+    zone = DYNAMIC_ZONES.get(ip)
+    if not zone or zone == "unknown":
+        if ip.startswith("10.0.1."):
+            return "untrusted"
+        elif ip.startswith("10.0.5."):
+            return "protected-user"
+        elif ip.startswith("10.0.4."):
+            return "protected-critical"
+    return zone or "unknown"
 
 def insert_alert(ip, zone, event, gnn_score):
     conn = sqlite3.connect(DB_PATH)
@@ -44,106 +44,103 @@ def insert_alert(ip, zone, event, gnn_score):
             (ip, zone, event, gnn_score)
         )
         conn.commit()
-        print(f"[Network IDS] Generated Alert: {ip} -> {event} (Score: {gnn_score})", flush=True)
+        print(f"[Network IDS] Generated Alert: {ip} ({zone}) -> {event} (Score: {gnn_score})", flush=True)
     finally:
         conn.close()
 
-def compute_gnn_score(metrics):
-    if not infer:
-        return 0.85 # fallback
-    
-    # metrics: { 'ports': set(), 'count': int }
-    # Graph representation: Node 0 is target, Node 1 is attacker
-    node_features = [
-        [1.0, 50.0], # target
-        [0.0, 0.0]   # attacker
-    ]
-    
-    # Edges: simulate the packet flow
-    edges = []
-    edge_features = []
-    
-    ports = list(metrics['ports'])
-    if not ports:
-        ports = [80]
-        
-    for p in ports[:5]: # up to 5 edges to prevent huge graphs
-        edges.append([1, 0])
-        edge_features.append([64, p]) # 64 bytes, dest port
-        
-    try:
-        scores = infer(node_features, edges, edge_features)
-        # return the score for the attacker node (node 1)
-        if scores is not None and len(scores) > 1:
-            return float(scores[1][0])
-    except Exception as e:
-        print(f"GNN Error: {e}", flush=True)
-    
-    return 0.90
+# Shared state across threads for IP detection
+state = defaultdict(lambda: {'count': 0, 'ports': set(), 'window_start': time.time(), 'last_seen': time.time(), 'alerted': False})
+state_lock = threading.Lock()
+
+def run_capture(container_name):
+    print(f"[Network IDS] Starting HIDS agent on endpoint: {container_name}...", flush=True)
+    pattern = re.compile(r"IP (\d+\.\d+\.\d+\.\d+)\.(\d+) > (\d+\.\d+\.\d+\.\d+)\.(\d+): Flags \[([SFP\.]+)\]")
+
+    while True:
+        try:
+            cmd = ["docker", "exec", container_name, "tcpdump", "-l", "-nn", "-i", "any", "tcp"]
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
+
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    break
+
+                match = pattern.search(line)
+                if not match:
+                    continue
+
+                src_ip = match.group(1)
+                dest_ip = match.group(3)
+                dest_port = int(match.group(4))
+                flags = match.group(5)
+
+                # Ignore management traffic, localhost, and docker host IPs
+                if (src_ip.startswith("127.") or dest_ip.startswith("127.") or
+                    src_ip == "10.0.2.254" or src_ip.startswith("172.") or
+                    dest_port in [8000, 8001]):
+                    continue
+
+                # Only track TCP connection initiations (pure SYN, excluding server SYN-ACK or ACK)
+                if 'S' not in flags or '.' in flags:
+                    continue
+
+                now = time.time()
+                with state_lock:
+                    s = state[src_ip]
+
+                    # Reset window if > 2.5 seconds have passed or gap between bursts is > 1.5s
+                    if (now - s['window_start'] > 2.5) or (now - s['last_seen'] > 1.5):
+                        s['count'] = 0
+                        s['ports'] = set()
+                        s['alerted'] = False
+                        s['window_start'] = now
+
+                    s['last_seen'] = now
+                    s['count'] += 1
+                    s['ports'].add(dest_port)
+
+                    if not s['alerted']:
+                        zone = get_zone(src_ip)
+                        if len(s['ports']) >= 2 and 'S' in flags:
+                            # Port Scan / Recon
+                            if zone.startswith("protected"):
+                                event = "lateral_movement_detected"
+                                score = 0.88
+                            else:
+                                event = "port_scan_detected"
+                                score = 0.95
+                            insert_alert(src_ip, zone, event, score)
+                            s['alerted'] = True
+                        elif s['count'] >= 4:
+                            # HTTP burst / flood to single port
+                            event = "unusual_traffic_burst"
+                            score = 0.45
+                            insert_alert(src_ip, zone, event, score)
+                            s['alerted'] = True
+        except Exception as e:
+            print(f"[Network IDS] Listener {container_name} error: {e}", flush=True)
+
+        time.sleep(1)
 
 def main():
-    print("[Network IDS] Starting packet capture on PEP router...", flush=True)
-    
+    print("[Network IDS] Initializing distributed HIDS agents...", flush=True)
+
     # Initialize DB
     conn = sqlite3.connect(DB_PATH)
     conn.execute("CREATE TABLE IF NOT EXISTS incoming_alerts (id INTEGER PRIMARY KEY, ip TEXT, zone TEXT, wazuh_event TEXT, gnn_score REAL)")
     conn.close()
 
-    # Capture all TCP traffic leaving the attacker node (ensures we see it regardless of Docker's internal bridge routing)
-    cmd = ["docker", "exec", "attacker", "tcpdump", "-l", "-nn", "-i", "any", "tcp"]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
+    endpoints = ["attacker", "victim-user", "pep"]
+    threads = []
 
-    # State tracking: IP -> { 'count': X, 'ports': set(), 'window_start': T, 'alerted': bool }
-    state = defaultdict(lambda: {'count': 0, 'ports': set(), 'window_start': time.time(), 'alerted': False})
+    for ep in endpoints:
+        t = threading.Thread(target=run_capture, args=(ep,), daemon=True)
+        t.start()
+        threads.append(t)
 
-    # Regex to parse tcpdump standard output: 
-    # e.g., 16:11:00.123456 IP 10.0.1.10.54321 > 10.0.4.10.80: Flags [S]
-    pattern = re.compile(r"IP (\d+\.\d+\.\d+\.\d+)\.(\d+) > (\d+\.\d+\.\d+\.\d+)\.(\d+): Flags \[([SFP\.]+)\]")
-
-    while True:
-        line = process.stdout.readline()
-        if not line:
-            break
-            
-        match = pattern.search(line)
-        if not match:
-            continue
-            
-        src_ip = match.group(1)
-        # Skip local/docker bridge IPs
-        if src_ip.startswith("127.") or src_ip == "10.0.2.254" or src_ip.startswith("172."):
-            continue
-
-        dest_port = int(match.group(4))
-        flags = match.group(5)
-        
-        now = time.time()
-        s = state[src_ip]
-        
-        # Reset window after 5 seconds
-        if now - s['window_start'] > 5:
-            s['count'] = 0
-            s['ports'] = set()
-            s['alerted'] = False
-            s['window_start'] = now
-            
-        s['count'] += 1
-        s['ports'].add(dest_port)
-
-        # Detection Logic
-        if not s['alerted']:
-            if len(s['ports']) >= 2 and 'S' in flags:
-                # Port Scan (many SYN packets to different ports)
-                score = compute_gnn_score(s)
-                insert_alert(src_ip, get_zone(src_ip), "port_scan_detected", score)
-                s['alerted'] = True
-            elif s['count'] > 5:
-                # Traffic burst / Flood
-                score = compute_gnn_score(s) - 0.2 # Lower anomaly score for just a flood vs a port scan
-                score = max(0.4, min(score, 0.99))
-                event = "lateral_movement_detected" if get_zone(src_ip).startswith("protected") else "unusual_traffic_burst"
-                insert_alert(src_ip, get_zone(src_ip), event, score)
-                s['alerted'] = True
+    for t in threads:
+        t.join()
 
 if __name__ == "__main__":
     main()

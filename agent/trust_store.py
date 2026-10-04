@@ -1,7 +1,12 @@
 import sqlite3
+import os
+
+DEFAULT_TRUST_DB = os.path.join(os.path.dirname(__file__), 'trust.db')
 
 class TrustStore:
-    def __init__(self, db_path="trust.db"):
+    def __init__(self, db_path=None):
+        if db_path is None:
+            db_path = DEFAULT_TRUST_DB
         self.conn = sqlite3.connect(db_path)
         self.cursor = self.conn.cursor()
         self.cursor.execute('''

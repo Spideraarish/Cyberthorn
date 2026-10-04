@@ -57,9 +57,29 @@ export default function ScenarioControls({ addLog, setActiveAttack }) {
   return (
     <div className="card" style={{ height: '100%' }}>
       <div className="card-head">
-        <Zap size={13} color="var(--blue)" />
-        <span className="card-head-label">Attack Scenarios</span>
-        <span className="badge badge-blue" style={{ marginLeft: 'auto' }}>Live Docker</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Zap size={13} color="var(--blue)" />
+          <span className="card-head-label">Attack Scenarios</span>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+          <button onClick={async () => {
+            try {
+              addLog({ type: 'observe', text: 'Resetting SOC environment...' });
+              const res = await fetch('http://localhost:8001/api/reset', { method: 'POST' });
+              const data = await res.json();
+              if (data.status === 'error') {
+                addLog({ type: 'error', text: 'Reset SOC partially failed: ' + data.errors.join(', ') });
+              } else {
+                window.location.reload();
+              }
+            } catch (err) {
+              addLog({ type: 'error', text: 'Network Error during Reset SOC: ' + err.message });
+            }
+          }} style={{ background: 'var(--red)', color: 'white', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.65rem', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+            RESET SOC
+          </button>
+          <span className="badge badge-blue">Live Docker</span>
+        </div>
       </div>
 
       <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', overflow: 'hidden' }}>

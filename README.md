@@ -62,11 +62,11 @@ Open `http://localhost:5173` in your browser.
 ---
 
 ## ⚔️ Executing Real Scenarios
-1. Go to the dashboard in your browser.
-2. Under "Attack Scenarios", click **Port Scan**.
-3. The backend will dynamically identify the attacker IP, drop into the attacker container, and execute a live `nmap` attack against the victim.
-4. The **Endpoint IDS** will intercept the real packets, feed them to the **Agent Loop**.
-5. The GNN will score the threat, and the Agent will command the **PEP Router** to update its `nftables` to isolate the attacker.
-6. The dashboard will instantly update to show the red isolation badge on the topology graph.
+1. Go to the dashboard at `http://localhost:5173`.
+2. Under "Attack Scenarios", click any scenario to execute live packet-level attacks:
+   - **Port Scan (Attacker → Protected-Critical)**: Runs live `nmap` SYN reconnaissance. Classified as Critical and dynamically isolated by PEP `nftables`.
+   - **Traffic Burst (User Node → Web Services)**: Simulates rapid HTTP request bursts. Agent reduces trust score and places node under observation (`WATCH`).
+   - **Lateral Movement (User Node → Protected-Critical)**: Simulates internal pivot scanning from a compromised internal node to the critical database. Autonomous loop immediately locks down and isolates the rogue user node.
+3. Click **RESET SOC** at any point to wipe incident telemetry, unblock isolated nodes on the PEP firewall, and reset trust scores back to baseline.
 
-Everything happening in the dashboard is reacting to 100% real network traffic generated inside the Docker Sandbox. No mock data is used!
+Everything in the dashboard is reacting to 100% real packet-level traffic generated inside the Docker Sandbox. No mock data is used!

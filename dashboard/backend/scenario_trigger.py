@@ -26,15 +26,15 @@ SCENARIO_CONFIG = {
     "1": {
         "attacker_node": "attacker",
         "target_node": "victim-critical",
-        "docker_cmd": "docker exec attacker nmap -sS -p 22,80,443,3306 {TARGET_IP}",
+        "docker_cmd": "docker exec attacker nmap -Pn -sS -p 22,80,443,3306 {TARGET_IP}",
         "zone": "protected-critical",
         "wazuh_event": "port_scan_detected",
         "gnn_score": 0.95,
     },
     "2": {
         "attacker_node": "victim-user",
-        "target_node": "victim-user",
-        "docker_cmd": "docker exec victim-user wget -q -O /dev/null http://{TARGET_IP}/ || true",
+        "target_node": "victim-critical",
+        "docker_cmd": "docker exec victim-user sh -c 'for i in 1 2 3 4 5 6 7 8; do curl -s -m 1 http://{TARGET_IP}/ >/dev/null 2>&1; done'",
         "zone": "protected-user",
         "wazuh_event": "unusual_traffic_burst",
         "gnn_score": 0.45,
@@ -42,7 +42,7 @@ SCENARIO_CONFIG = {
     "3": {
         "attacker_node": "victim-user",
         "target_node": "victim-critical",
-        "docker_cmd": "docker exec victim-user ping -c 4 {TARGET_IP} || true",
+        "docker_cmd": "docker exec victim-user nmap -Pn -sS -p 21,22,80,443,3306 {TARGET_IP}",
         "zone": "protected-critical",
         "wazuh_event": "lateral_movement_detected",
         "gnn_score": 0.88,
