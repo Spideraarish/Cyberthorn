@@ -1,0 +1,73 @@
+version: '3.8'
+
+networks:
+  untrusted:
+    ipam:
+      config:
+        - subnet: 10.0.1.0/24
+  enforcement:
+    ipam:
+      config:
+        - subnet: 10.0.2.0/24
+  management:
+    ipam:
+      config:
+        - subnet: 10.0.3.0/24
+  protected-critical:
+    ipam:
+      config:
+        - subnet: 10.0.4.0/24
+  protected-user:
+    ipam:
+      config:
+        - subnet: 10.0.5.0/24
+
+services:
+  pep:
+    build: ./pep
+    container_name: pep
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    sysctls:
+      - net.ipv4.ip_forward=1
+    networks:
+      untrusted:
+        ipv4_address: 10.0.1.254
+      enforcement:
+        ipv4_address: 10.0.2.254
+      management:
+        ipv4_address: 10.0.3.254
+      protected-critical:
+        ipv4_address: 10.0.4.254
+      protected-user:
+        ipv4_address: 10.0.5.254
+    ports:
+      - "8000:8000"
+
+  attacker:
+    build: ./attacker
+    container_name: attacker
+    cap_add:
+      - NET_ADMIN
+    networks:
+      untrusted:
+        ipv4_address: 10.0.1.10
+
+  victim-critical:
+    build: ./victim-critical
+    container_name: victim-critical
+    cap_add:
+      - NET_ADMIN
+    networks:
+      protected-critical:
+        ipv4_address: 10.0.4.10
+
+  victim-user:
+    build: ./victim-user
+    container_name: victim-user
+    cap_add:
+      - NET_ADMIN
+    networks:
+      protected-user:
+        ipv4_address: 10.0.5.10
