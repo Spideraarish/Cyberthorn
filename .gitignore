@@ -10,3 +10,4 @@ alerts.db
 *.db
 venv/
 env/
+.reset_flag

@@ -32,6 +32,14 @@ app.include_router(scenario_router, prefix="/api")
 @app.post("/api/reset")
 async def reset_soc():
     errors = []
+    # 0. Signal network IDS to reset in-memory state
+    try:
+        flag_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../agent/.reset_flag'))
+        with open(flag_path, 'w') as f:
+            f.write(str(time.time()))
+    except Exception:
+        pass
+
     # 1. Clear databases
     for db in ['../../agent/trust.db', '../../agent/alerts.db']:
         db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), db))
