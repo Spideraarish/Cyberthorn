@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import ShaderGradientBackground from '../components/ShaderGradientBackground';
 import WaterRippleGridCanvas from '../components/WaterRippleGridCanvas';
-import WireEnclaveCockpit from '../components/WireEnclaveCockpit';
+import CyberPhysicalHeroAnimation from '../components/CyberPhysicalHeroAnimation';
 import LiquidGlassFilter from '../components/LiquidGlassFilter';
 import './LandingPage.css';
 
@@ -396,12 +396,12 @@ export default function LandingPage() {
             </div>
             <div className="cq-brand-info">
               <span className="cq-brand-name">QANNASAI</span>
-              <span className="cq-brand-badge">CORE 2.4</span>
             </div>
           </Link>
 
           <nav className="cq-nav">
             <a href="#hero">Overview</a>
+            <Link to="/simulation" style={{ color: '#00f2fe', fontWeight: 600 }}>Simulation</Link>
             <a href="#why-us">Why Us</a>
             <a href="#comparison">Benchmark</a>
             <a href="#pipeline">Pipeline</a>
@@ -412,6 +412,9 @@ export default function LandingPage() {
           </nav>
 
           <div className="cq-header-actions">
+            <Link to="/simulation" className="cq-btn-secondary cq-liquid-btn" style={{ marginRight: '8px' }}>
+              <span>Simulation</span>
+            </Link>
             <Link to="/" className="cq-btn-primary cq-liquid-btn">
               <span>Operations Center</span>
               <ArrowUpRight className="w-3.5 h-3.5 ml-1 inline-block" />
@@ -467,105 +470,23 @@ export default function LandingPage() {
                 Autonomous Linux kernel defense. GraphSAGE spatial topology reasoning and 1D-CNN temporal burst detection sever hostile sockets in under 42 milliseconds—before lateral movement begins.
               </motion.p>
 
-              {/* Interactive Mode Switcher Deck */}
+              {/* Action Buttons */}
               <motion.div 
-                className="cq-mode-pill-bar" 
-                style={{ 
-                  display: 'inline-flex', 
-                  gap: '6px', 
-                  padding: '5px', 
-                  background: 'rgba(9, 13, 20, 0.85)', 
-                  backdropFilter: 'blur(20px)', 
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
-                  borderRadius: '9999px',
-                  marginBottom: '26px'
-                }}
+                style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '26px' }}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <button 
-                  onClick={() => setHero3DMode('gcn')}
-                  className={`cq-mode-btn ${hero3DMode === 'gcn' ? 'active' : ''}`}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    fontFamily: 'var(--cq-font-mono)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: hero3DMode === 'gcn' ? 'rgba(45, 212, 191, 0.18)' : 'transparent',
-                    color: hero3DMode === 'gcn' ? 'var(--cq-mint)' : 'var(--cq-text-muted)',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <span className="gl-tile-diamond" style={{ background: hero3DMode === 'gcn' ? 'var(--cq-mint)' : 'var(--cq-titanium)' }} />
-                  <span>01 SPATIAL GCN</span>
-                </button>
-
-                <button 
-                  onClick={() => setHero3DMode('cnn')}
-                  className={`cq-mode-btn ${hero3DMode === 'cnn' ? 'active' : ''}`}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    fontFamily: 'var(--cq-font-mono)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: hero3DMode === 'cnn' ? 'rgba(56, 189, 248, 0.18)' : 'transparent',
-                    color: hero3DMode === 'cnn' ? 'var(--cq-cobalt)' : 'var(--cq-text-muted)',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <span className="gl-tile-diamond" style={{ background: hero3DMode === 'cnn' ? 'var(--cq-cobalt)' : 'var(--cq-titanium)' }} />
-                  <span>02 TEMPORAL CNN</span>
-                </button>
-
-                <button 
-                  onClick={() => setHero3DMode('kernel')}
-                  className={`cq-mode-btn ${hero3DMode === 'kernel' ? 'active' : ''}`}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    fontFamily: 'var(--cq-font-mono)',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    border: 'none',
-                    cursor: 'pointer',
-                    background: hero3DMode === 'kernel' ? 'rgba(245, 158, 11, 0.18)' : 'transparent',
-                    color: hero3DMode === 'kernel' ? 'var(--cq-amber)' : 'var(--cq-text-muted)',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <span className="gl-tile-diamond" style={{ background: hero3DMode === 'kernel' ? 'var(--cq-amber)' : 'var(--cq-titanium)' }} />
-                  <span>03 KERNEL PEP</span>
-                </button>
-              </motion.div>
-
-              {/* Action Buttons */}
-              <motion.div 
-                style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '22px' }}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
               >
                 <Link to="/" className="cq-btn-hero-solid cq-liquid-action-btn">
                   <span>Enter Operations Center</span>
                   <div className="cq-btn-hero-arrow">
                     <ArrowRight className="w-4 h-4" />
                   </div>
+                </Link>
+
+                <Link to="/simulation" className="cq-btn-hero-glass cq-liquid-pill-glass" style={{ border: '1px solid rgba(0, 242, 254, 0.35)', color: '#00f2fe' }}>
+                  <span>Architecture &amp; Arduino /simulation</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
                 </Link>
 
                 <a href="#why-us" className="cq-btn-hero-glass cq-liquid-pill-glass">
@@ -579,7 +500,7 @@ export default function LandingPage() {
                 className="cq-telemetry-micro-strip"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
+                transition={{ duration: 0.6, delay: 0.25 }}
               >
                 <span>LATENCY: <strong>38.4MS</strong></span>
                 <span>AF_PACKET: <strong>64MB RING</strong></span>
@@ -589,19 +510,20 @@ export default function LandingPage() {
 
             </div>
 
-            {/* ── RIGHT COLUMN: HIGH-PRECISION INTERACTIVE WIRE ENCLAVE HUD (NO SHIELD) ── */}
+            {/* ── RIGHT COLUMN: CYBER PHYSICAL SYSTEM ANIMATION ── */}
             <motion.div 
               className="cq-hero-right-col"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
             >
-              <WireEnclaveCockpit 
-                mode={hero3DMode} 
-                onSimulateAttack={(meta) => {
-                  console.log('Interception simulated:', meta);
-                }}
-              />
+              <CyberPhysicalHeroAnimation />
             </motion.div>
 
           </div>
@@ -1087,7 +1009,6 @@ export default function LandingPage() {
                 </div>
                 <div className="cq-brand-info">
                   <span className="cq-brand-name">QANNASAI</span>
-                  <span className="cq-brand-badge">CORE 2.4</span>
                 </div>
               </div>
               <p className="cq-footer-tagline">
