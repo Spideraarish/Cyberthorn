@@ -14,6 +14,13 @@ def decide(context_json: dict, api_key: str = None) -> dict:
     # Deterministic local fallback logic (Zero Trust rules engine)
     # This simulates the LLM reasoning without requiring an API key.
     
+    if wazuh_event == "insider_threat_honeytoken":
+        return {
+            "action": "block",
+            "confidence": 1.0,
+            "justification": f"INSIDER THREAT DETECTED: Decoy Honeytoken accessed by internal endpoint in zone '{zone}'."
+        }
+        
     if fused_score > 0.3:
         return {
             "action": "block",

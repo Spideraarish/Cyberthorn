@@ -40,6 +40,7 @@ def run_loop():
                 # ORIENT
                 current_trust = trust.get_score(ip)
                 if current_trust == 0.0:
+                    broadcast("OBSERVE", {"message": f"Alert for {ip} ignored (IP is already blocked with 0% trust)."})
                     continue # IP is already blocked, ignore further alerts for it to prevent UI spam
                     
                 context = {

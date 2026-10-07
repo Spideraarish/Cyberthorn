@@ -86,6 +86,14 @@ const SCENARIOS = [
     severityClass: 'badge-blue',
     severity: 'Normal',
   },
+  {
+    id: '11',
+    name: '11. Insider Threat (Honeytoken)',
+    detail: 'User Node → Critical Asset (T1078.003)',
+    desc: 'Insider accessing a decoy file (port 9999). Deterministic block via Zero Trust rules engine. Expected: BLOCK.',
+    severityClass: 'badge-red',
+    severity: 'Critical',
+  },
 ];
 
 export default function ScenarioControls({ addLog, setActiveAttack }) {
