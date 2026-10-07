@@ -62,7 +62,7 @@ export default function App() {
 
       ws.onopen = () => {
         setWsStatus('connected');
-        addLog({ type: 'observe', text: 'Connected to Cyberthorn backend WebSocket.' });
+        addLog({ type: 'observe', text: 'Connected to QannasAi backend WebSocket.' });
       };
 
       ws.onclose = () => {
@@ -133,7 +133,7 @@ export default function App() {
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
             <h1 style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-1)' }}>
-              Cyberthorn
+              QannasAi
             </h1>
             <span style={{ fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Zero-Trust Operations Center
@@ -144,6 +144,25 @@ export default function App() {
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <a 
+            href="/home" 
+            style={{ 
+              textDecoration: 'none', 
+              fontSize: '0.68rem', 
+              fontWeight: 600, 
+              color: 'var(--blue)', 
+              background: 'var(--blue-bg)', 
+              border: '1px solid rgba(59,130,246,0.3)', 
+              padding: '0.25rem 0.6rem', 
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}
+          >
+            <span>Overview & Specs (/home)</span>
+            <span style={{ fontSize: '0.75rem' }}>↗</span>
+          </a>
           <span className={`badge ${wsStatus === 'connected' ? 'badge-green' : wsStatus === 'connecting' ? 'badge-blue' : 'badge-red'}`}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
             {wsStatus === 'connected' ? 'Agent Live' : wsStatus === 'connecting' ? 'Connecting…' : 'Disconnected — retrying'}
