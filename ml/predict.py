@@ -59,7 +59,7 @@ def predict(window_flows, window_id=0, ts=None, bundle_path=None, max_suspects=5
         img = torch.from_numpy(g["cnn"] / b["cnn_max"][:, None, None]).float().unsqueeze(0)
         pc = torch.softmax(cnn(img), 1)[0].numpy()
     pg = FT.agg_window_probs(P, b["agg_k"])
-    w = 0.15  # Override b["w_fuse"] because GNN hasn't been fine-tuned for live lab traffic (Plan 5.7)
+    w = b["w_fuse"]
     pf = w * pg + (1 - w) * pc
     k = int(pf.argmax())
 
