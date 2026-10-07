@@ -620,10 +620,6 @@ export default function LandingPage() {
         <div className="cq-container">
           
           <div className="cq-section-header" style={{ marginBottom: '48px' }}>
-            <div className="cq-section-pill">
-              <span className="gl-tile-diamond" />
-              <span>Why QannasAi</span>
-            </div>
             <h2 className="cq-section-title">
               Why Traditional Security Fails at the Wire
             </h2>
@@ -678,10 +674,6 @@ export default function LandingPage() {
         <div className="cq-container">
           
           <div className="cq-section-header" style={{ marginBottom: '40px' }}>
-            <div className="cq-section-pill">
-              <span className="gl-tile-diamond" />
-              <span>Speed &amp; Architecture Benchmark</span>
-            </div>
             <h2 className="cq-section-title">
               Engineered for Zero Trust. Proven by Milliseconds.
             </h2>
@@ -743,10 +735,6 @@ export default function LandingPage() {
         <div className="cq-container">
           
           <div className="cq-section-header" style={{ marginBottom: '36px' }}>
-            <div className="cq-section-pill">
-              <span className="gl-tile-diamond" />
-              <span>Autonomous Isolation Pipeline</span>
-            </div>
             <h2 className="cq-section-title">
               From Wire Ingest to Kernel Sever in 38.4ms
             </h2>
@@ -833,10 +821,6 @@ export default function LandingPage() {
         <div className="cq-container" style={{ position: 'relative', zIndex: 10 }}>
           
           <div className="cq-section-header" style={{ marginBottom: '46px' }}>
-            <div className="cq-section-pill" style={{ borderColor: 'rgba(245, 158, 11, 0.3)', color: 'var(--cq-amber)' }}>
-              <span className="gl-tile-diamond" style={{ background: 'var(--cq-amber)' }} />
-              <span>UAE Cybersecurity Council Alignment</span>
-            </div>
             <h2 className="cq-section-title">
               Anchored in National Sovereign Cyber Defense
             </h2>
@@ -881,12 +865,8 @@ export default function LandingPage() {
         <div className="cq-container">
           
           <div className="cq-section-header" style={{ marginBottom: '30px' }}>
-            <div className="cq-section-pill">
-              <span className="gl-tile-diamond" />
-              <span>10-Vector Attack Matrix</span>
-            </div>
             <h2 className="cq-section-title">
-              Wire-Speed Containment Testing
+              10-Vector Attack Matrix
             </h2>
             <p className="cq-section-desc">
               Select any verified attack scenario to inspect the payload and execute wire-speed kernel containment.
@@ -980,10 +960,6 @@ export default function LandingPage() {
         <div className="cq-container">
           
           <div className="cq-section-header" style={{ marginBottom: '30px' }}>
-            <div className="cq-section-pill">
-              <span className="gl-tile-diamond" />
-              <span>Speed Benchmark</span>
-            </div>
             <h2 className="cq-section-title">
               20x Faster Wire Containment
             </h2>
