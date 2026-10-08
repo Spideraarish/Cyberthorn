@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import ShaderGradientBackground from '../components/ShaderGradientBackground';
 import WaterRippleGridCanvas from '../components/WaterRippleGridCanvas';
-import CyberPhysicalHeroAnimation from '../components/CyberPhysicalHeroAnimation';
+import CyberPhysicalVideoHero from '../components/CyberPhysicalVideoHero';
 import LiquidGlassFilter from '../components/LiquidGlassFilter';
 import './LandingPage.css';
 
@@ -402,6 +402,7 @@ export default function LandingPage() {
           <nav className="cq-nav">
             <a href="#hero">Overview</a>
             <Link to="/simulation" style={{ color: '#00f2fe', fontWeight: 600 }}>Simulation</Link>
+            <Link to="/quantum" style={{ color: '#c084fc', fontWeight: 600 }}>Quantum (PQC)</Link>
             <a href="#why-us">Why Us</a>
             <a href="#comparison">Benchmark</a>
             <a href="#pipeline">Pipeline</a>
@@ -489,6 +490,11 @@ export default function LandingPage() {
                   <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
                 </Link>
 
+                <Link to="/quantum" className="cq-btn-hero-glass cq-liquid-pill-glass" style={{ border: '1px solid rgba(192, 132, 252, 0.4)', color: '#c084fc' }}>
+                  <span>Post-Quantum /quantum</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+                </Link>
+
                 <a href="#why-us" className="cq-btn-hero-glass cq-liquid-pill-glass">
                   <span>Why QannasAi</span>
                   <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
@@ -523,7 +529,7 @@ export default function LandingPage() {
                 width: '100%'
               }}
             >
-              <CyberPhysicalHeroAnimation />
+              <CyberPhysicalVideoHero />
             </motion.div>
 
           </div>

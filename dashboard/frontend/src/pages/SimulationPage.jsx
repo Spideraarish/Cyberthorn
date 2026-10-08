@@ -167,6 +167,9 @@ export default function SimulationPage() {
             <Link to="/home" className="cq-sim-btn-glass">
               <span>Overview</span>
             </Link>
+            <Link to="/quantum" className="cq-sim-btn-glass" style={{ borderColor: 'rgba(192, 132, 252, 0.35)', color: '#c084fc' }}>
+              <span>Quantum (PQC)</span>
+            </Link>
             <Link to="/" className="cq-sim-btn-primary">
               <span>Operations Center</span>
               <ArrowUpRight className="w-3.5 h-3.5 ml-1" />

@@ -160,8 +160,43 @@ export default function App() {
               gap: '0.3rem'
             }}
           >
-            <span>Overview & Specs (/home)</span>
-            <span style={{ fontSize: '0.75rem' }}>↗</span>
+            <span>Landing</span>
+          </a>
+          <a 
+            href="/simulation" 
+            style={{ 
+              textDecoration: 'none', 
+              fontSize: '0.68rem', 
+              fontWeight: 600, 
+              color: '#00f2fe', 
+              background: 'rgba(0, 242, 254, 0.08)', 
+              border: '1px solid rgba(0, 242, 254, 0.3)', 
+              padding: '0.25rem 0.6rem', 
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}
+          >
+            <span>CPS Sim</span>
+          </a>
+          <a 
+            href="/quantum" 
+            style={{ 
+              textDecoration: 'none', 
+              fontSize: '0.68rem', 
+              fontWeight: 600, 
+              color: '#c084fc', 
+              background: 'rgba(192, 132, 252, 0.08)', 
+              border: '1px solid rgba(192, 132, 252, 0.3)', 
+              padding: '0.25rem 0.6rem', 
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}
+          >
+            <span>Quantum (PQC)</span>
           </a>
           <span className={`badge ${wsStatus === 'connected' ? 'badge-green' : wsStatus === 'connecting' ? 'badge-blue' : 'badge-red'}`}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
